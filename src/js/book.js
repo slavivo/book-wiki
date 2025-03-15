@@ -4,10 +4,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggle-book');
     const pageContent = document.getElementById('page-content');
     const currentPageTitle = document.getElementById('current-page-title');
+    const backButton = document.getElementById('back-button');
+    
+    // Initially hide the back button
+    backButton.style.display = 'none';
     
     // State variables
     let isOpen = false;
     let currentPageIndex = 0;
+    let pageHistory = []; // Array to store visited page indices
     
     // Initialize the book
     function initBook() {
@@ -21,11 +26,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Store pages globally
                 window.bookPages = pagesData;
                 
-                // Display the first page
+                // Add first page to history and display it
+                pageHistory.push(currentPageIndex);
                 updatePage();
-                
-                // Set up page links once (using event delegation)
+
+                // Set up page links
                 setupPageLinks();
+            
+                // Set up back button
+                setupBackButton();
             })
             .catch(error => {
                 console.error('Error loading pages:', error);
@@ -64,11 +73,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelector('.book-cover').style.pointerEvents = 'none';
                 // Make book pages clickable
                 document.querySelector('.book-pages').style.pointerEvents = 'auto';
+                // Show back button if we have history
+                updateBackButtonVisibility();
             } else {
                 // Make book cover clickable when closed
                 document.querySelector('.book-cover').style.pointerEvents = 'auto';
                 // Make book pages not clickable
                 document.querySelector('.book-pages').style.pointerEvents = 'none';
+                // Hide back button when book is closed
+                backButton.style.display = 'none';
             }
         }, 100); // Small delay to let animation start
     });
@@ -78,6 +91,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const page = window.bookPages[currentPageIndex];
         currentPageTitle.textContent = page.title;
         pageContent.innerHTML = page.content;
+        updateBackButtonVisibility();
+    }
+    
+    // Update back button visibility based on history
+    function updateBackButtonVisibility() {
+        if (isOpen && pageHistory.length > 1) {
+            backButton.style.display = 'block';
+        } else {
+            backButton.style.display = 'none';
+        }
+    }
+    
+    // Set up back button functionality
+    function setupBackButton() {
+        backButton.addEventListener('click', function() {
+            if (pageHistory.length > 1) {
+                // Remove current page from history
+                pageHistory.pop();
+                // Set current page to previous page in history
+                currentPageIndex = pageHistory[pageHistory.length - 1];
+                updatePage();
+            }
+        });
     }
     
     // Set up page link click handlers - only call this ONCE
@@ -94,7 +130,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 const targetIndex = parseInt(e.target.getAttribute('data-index'));
                 if (targetIndex >= 0 && targetIndex < window.bookPages.length) {
+                    // Store the new page in history
                     currentPageIndex = targetIndex;
+                    pageHistory.push(currentPageIndex);
                     updatePage();
                 }
             }

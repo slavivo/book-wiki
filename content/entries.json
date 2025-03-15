@@ -6,7 +6,11 @@
       },
       {
         "title": "Section 1",
-        "content": "This is another section."
+        "content": "This is another section. <span class=\"page-link\" data-index=\"2\">Section 2</span>"
+      },
+      {
+        "title": "Section 2",
+        "content": "This is another section. <span class=\"page-link\" data-index=\"0\">Introduction</span>"
       }
     ]
   }
