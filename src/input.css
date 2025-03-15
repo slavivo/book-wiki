@@ -37,10 +37,18 @@ body {
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    transform: rotateY(0deg);
     transition: transform 1s ease;
     border-radius: 5px;
     box-shadow: 0 0 30px rgba(10, 10, 10, 0.8);
+}
+
+/* State management classes - IMPORTANT for functionality */
+.book.closed {
+    transform: rotateY(0deg);
+}
+
+.book.open {
+    transform: rotateY(180deg);
 }
 
 .book-cover {
@@ -57,28 +65,22 @@ body {
     align-items: center;
     padding: 2rem;
     overflow: hidden;
+    /* IMPORTANT: Controls interaction */
+    pointer-events: auto;
 }
 
-.book-cover::before {
-    content: '';
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    border: 2px solid rgba(140, 100, 75, 0.3);
-    border-radius: 3px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
-}
-
-.book-cover::after {
-    content: '';
+.book-pages {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="grain" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="5" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0.3 0 0 0 0 0 0.3 0 0 0 0 0 0.3 0 0 0 0 0 0.5 0"/></filter><rect width="100" height="100" filter="url(%23grain)" fill="none"/></svg>');
-    opacity: 0.3;
-    z-index: 1;
+    backface-visibility: hidden;
+    transform: rotateY(180deg);
+    background-color: #f5f0e8;
+    border-radius: 5px;
+    padding: 2rem;
+    overflow: auto;
+    /* IMPORTANT: Controls interaction */
+    pointer-events: none;
 }
 
 .book-binding {
@@ -135,34 +137,7 @@ body {
     opacity: 0.7;
 }
 
-.book-pages {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    transform: rotateY(180deg);
-    background: var(--parchment);
-    border-radius: 5px;
-    padding: 2rem;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    background-image: 
-        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><filter id="grain" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="5" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0.05 0 0 0 0 0 0.05 0 0 0 0 0 0.05 0 0 0 0 0 0.15 0"/></filter><rect width="100" height="100" filter="url(%23grain)" fill="none"/></svg>'),
-        radial-gradient(circle at 30% 20%, var(--parchment), var(--parchment-dark));
-}
-
-.book-pages::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="wrinkles" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="10" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0"/></filter><rect width="200" height="200" filter="url(%23wrinkles)" fill="none"/></svg>');
-    pointer-events: none;
-}
-
+/* Page header styles - merged from duplicates */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -173,32 +148,26 @@ body {
     position: relative;
 }
 
-.page-header::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    width: 100%;
-    height: 3px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="3"><filter id="noise" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.1" numOctaves="2" seed="5" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"/></filter><rect width="100" height="3" filter="url(%23noise)" fill="%238b5a2b"/></svg>');
-    opacity: 0.3;
-}
-
-.page-title {
-    color: var(--accent);
-    font-size: 1.8rem;
-    font-weight: normal;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
-
 .page-nav {
     display: flex;
 }
 
+/* Page title styles */
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    color: #3c261c;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #d3c5b0;
+}
+
+/* Page content styles - merged from duplicates */
 .page-content {
+    font-family: 'Georgia', serif;
     line-height: 1.6;
     font-size: 1.1rem;
     position: relative;
+    color: #333;
 }
 
 .page-content p {
@@ -222,18 +191,6 @@ body {
     padding-left: 1rem;
 }
 
-.page-content h2::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 5px;
-    height: 70%;
-    background-color: var(--accent);
-    opacity: 0.6;
-}
-
 .page-content h3 {
     margin: 1.2rem 0 0.3rem;
     color: var(--accent);
@@ -242,6 +199,7 @@ body {
     font-style: italic;
 }
 
+/* Sidebar styles */
 .sidebar {
     position: fixed;
     left: 1rem;
@@ -271,37 +229,24 @@ body {
     overflow: hidden;
 }
 
-.sidebar-button::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><filter id="noise" x="0" y="0"><feTurbulence type="fractalNoise" baseFrequency="0.15" numOctaves="2" seed="5" stitchTiles="stitch"/><feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"/></filter><rect width="50" height="50" filter="url(%23noise)" fill="none"/></svg>');
-    opacity: 0.5;
-    border-radius: 50%;
-    pointer-events: none;
-}
 
 .sidebar-button:hover {
     background: rgba(139, 90, 43, 0.8);
     box-shadow: 0 0 10px rgba(139, 90, 43, 0.5);
 }
 
-@media (max-width: 768px) {
-    .book-title {
-        font-size: 2rem;
-    }
-    
-    .sidebar {
-        left: 0.5rem;
-    }
-    
-    .sidebar-button {
-        width: 2.5rem;
-        height: 2.5rem;
-    }
+/* Page link styles - merged and fixed */
+.page-link {
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    font-weight: 500;
+}
+
+.page-link:hover {
+    color: #8c6e56;
 }
 
 /* Animation classes */
@@ -328,26 +273,18 @@ body {
     }
 }
 
-.page-link {
-    color: var(--accent);
-    text-decoration: underline;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.page-link:hover {
-    color: var(--accent-light);
-    text-shadow: 0 0 5px rgba(139, 90, 43, 0.3);
-}
-
-.page-link::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 1px;
-    bottom: 0;
-    left: 0;
-    background-color: var(--accent);
-    opacity: 0.5;
+/* Responsive styles */
+@media (max-width: 768px) {
+    .book-title {
+        font-size: 2rem;
+    }
+    
+    .sidebar {
+        left: 0.5rem;
+    }
+    
+    .sidebar-button {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
 }
