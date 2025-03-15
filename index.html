@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Arcanum - Magical Chronicles</title>
+    <link href="./src/input.css" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <button class="sidebar-button" id="toggle-book">≡</button>
+    </div>
+
+    <div class="book-container">
+        <div class="book" id="magic-book">
+            <div class="book-cover">
+                <div class="book-binding"></div>
+                <div class="book-spine"></div>
+                <h1 class="book-title glowing-text">The Arcanum</h1>
+                <p class="book-subtitle">A Chronicle of Arcane Discoveries</p>
+                <div class="worn-edges"></div>
+            </div>
+            
+            <div class="book-pages">
+                <div class="page-header">
+                    <h1 class="page-title" id="current-page-title">Introduction</h1>
+                    <div class="page-nav">
+                        <button class="nav-button" id="contents-button">Contents</button>
+                        <button class="nav-button" id="next-button">Next</button>
+                    </div>
+                </div>
+                
+                <div class="page-content" id="page-content">
+                    <!-- Content will be loaded dynamically by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./src/js/book.js"></script>
+</body>
+</html>
