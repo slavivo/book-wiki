@@ -1,0 +1,13 @@
+{
+  "id": "section-1",
+  "versions": [
+    {
+      "title": "Section 1",
+      "chapterRange": [
+        1,
+        5
+      ],
+      "content": "This is Section 1 content. <span class=\"page-link\" data-page-id=\"section-2\">Section 2</span>"
+    }
+  ]
+}

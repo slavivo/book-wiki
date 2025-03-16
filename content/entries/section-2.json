@@ -1,0 +1,13 @@
+{
+  "id": "section-2",
+  "versions": [
+    {
+      "title": "Section 2",
+      "chapterRange": [
+        2,
+        5
+      ],
+      "content": "This is Section 2 content, which is only revealed after Chapter 2. <span class=\"page-link\" data-page-id=\"introduction\">Return to Introduction</span>"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "entries": [
+    {
+      "id": "introduction",
+      "category": "core"
+    },
+    {
+      "id": "section-1",
+      "category": "core"
+    },
+    {
+      "id": "section-2",
+      "category": "core"
+    },
+    {
+      "id": "magic-system",
+      "category": "lore"
+    }
+  ]
+}

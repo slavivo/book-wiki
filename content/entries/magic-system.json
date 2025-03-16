@@ -1,0 +1,21 @@
+{
+  "id": "magic-system",
+  "versions": [
+    {
+      "title": "Magic System - Initial Understanding",
+      "chapterRange": [
+        1,
+        2
+      ],
+      "content": "<p>Magic in our world appears to stem from the natural elements. Practitioners can manipulate fire, water, earth, and air through a combination of mental focus and verbal incantations.</p><p>The Academy teaches that these four elements are the foundation of all magical practice. While some scholars theorize about other forms of magic, I have yet to see evidence of anything beyond elemental manipulation.</p>"
+    },
+    {
+      "title": "Magic System - Revised Understanding",
+      "chapterRange": [
+        3,
+        5
+      ],
+      "content": "<p>I must revise my earlier notes on magic after witnessing the events in the Eastern Forests. Magic is not limited to the four elements as commonly taught.</p><p>There exists a fifth element\u2014spirit or aether\u2014that connects all things. Those who can tap into this connection display abilities far beyond traditional elemental manipulation. They can influence minds, see distant places, and even predict possible futures.</p><p>The Academy seems unaware of\u2014or deliberately conceals\u2014this knowledge.</p>"
+    }
+  ]
+}
