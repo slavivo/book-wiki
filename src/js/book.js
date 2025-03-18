@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const pageContent = document.getElementById('page-content');
     const currentPageTitle = document.getElementById('current-page-title');
     const backButton = document.getElementById('back-button');
-    const chapterSelector = document.getElementById('chapter-selector');
     
     // Initially hide the back button
     backButton.style.display = 'none';
@@ -17,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentChapter = 800; // Default to chapter 1
     let wikiMetadata = null;
     let entryCache = {}; // Cache for loaded entries
+    let availableChapters = []; // Array to store available chapters
     
     // Initialize the book
     function initBook() {
@@ -29,17 +29,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (savedChapter) {
             currentChapter = parseInt(savedChapter, 10);
         }
-        
-        // Setup chapter selector if it exists
-        if (chapterSelector) {
-            setupChapterSelector();
-        }
+
+        localStorage.setItem('currentChapter', null);
         
         // Load metadata and initialize pages
         fetchMetadata()
             .then(metadata => {
                 // Store metadata globally
                 wikiMetadata = metadata;
+                
+                // Extract available chapters from metadata
+                extractAvailableChapters();
+
+                // Set up chapter selector
+                setupChapterSelector();
                 
                 // Find first available page
                 return findFirstAvailablePage();
@@ -61,6 +64,134 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error initializing book:', error);
+            });
+    }
+    
+    // Extract all available chapter numbers from metadata entries
+    function extractAvailableChapters() {
+        // Create a Set to store unique chapter numbers
+        const chaptersSet = new Set();
+
+        // Create an array of promises to track all fetch operations
+        const fetchPromises = [];
+
+        // Process each entry to extract chapter ranges
+        wikiMetadata.entries.forEach(entry => {
+            if (entry.published === false) return;
+
+            // For each entry, create a promise for fetching and push it to our array
+            const fetchPromise = fetchEntry(entry.id)
+                .then(entryData => {
+                    entryData.versions.forEach(version => {
+                        // Add start of chapter range
+                        chaptersSet.add(version.chapterRange[0]);
+                    });
+                })
+                .catch(error => {
+                    console.error(`Error loading entry ${entry.id}:`, error);
+                });
+
+            fetchPromises.push(fetchPromise);
+        });
+
+        // When ALL fetch operations are complete, then update available chapters
+        Promise.all(fetchPromises).then(() => {
+            // Convert Set to sorted array and update available chapters
+            availableChapters = Array.from(chaptersSet).sort((a, b) => a - b);
+
+            // Update the chapter selector options after all data is loaded
+            updateChapterSelectorOptions();
+        });
+    }
+
+    function updateChapterSelectorOptions() {
+        const selector = document.getElementById('chapter-selector');
+        const savedChapter = localStorage.getItem('currentChapter');
+
+        // Clear existing options
+        while (selector.firstChild) {
+            selector.removeChild(selector.firstChild);
+        }
+
+        // Add "Latest chapter" option
+        const latestOption = document.createElement('option');
+        latestOption.value = 'latest';
+        latestOption.textContent = 'Latest chapter';
+        selector.appendChild(latestOption);
+
+        // Add options for each available chapter
+        availableChapters.forEach(chapter => {
+            const option = document.createElement('option');
+            option.value = chapter;
+            option.textContent = `Chapter ${chapter}`;
+            selector.appendChild(option);
+        });
+
+        // Get the latest chapter if available
+        const latestChapter = availableChapters.length > 0 ? 
+            availableChapters[availableChapters.length - 1] : null;
+
+
+        // Determine what to select and load
+        if (savedChapter && availableChapters.includes(parseInt(savedChapter, 10))) {
+            // Select the saved chapter if it exists in available chapters
+            selector.value = savedChapter;
+        } else {
+            // Default to "Latest chapter" option
+            selector.value = 'latest';
+
+            // Load the latest chapter if available
+            if (latestChapter) {
+                changeChapter(latestChapter);
+            }
+        }
+    }
+
+    function setupChapterSelector() {
+        // Get the selector element from HTML
+        const selector = document.getElementById('chapter-selector');
+
+        // Add event listener for chapter changes
+        selector.addEventListener('change', function() {
+
+            // Check if "Latest chapter" option is selected
+            if (this.value === 'latest') {
+                // Get the latest chapter (last in the availableChapters array)
+                const latestChapter = availableChapters[availableChapters.length - 1];
+                changeChapter(latestChapter);
+            } else {
+                const selectedChapter = parseInt(this.value, 10);
+                changeChapter(selectedChapter);
+            }
+        });
+    }
+
+    // Handle chapter change
+    function changeChapter(chapterNumber) {
+        // Update current chapter
+        currentChapter = chapterNumber;
+        console.log('Changing chapter to:', currentChapter);
+
+        // Save to localStorage
+        localStorage.setItem('currentChapter', currentChapter);
+
+        // Reset page history
+        pageHistory = [];
+
+        // Find first available page for new chapter
+        findFirstAvailablePage()
+            .then(firstPageId => {
+                // Set current page to first available page
+                currentPageId = firstPageId;
+
+                // Add to history
+                pageHistory.push(currentPageId);
+
+                // Update page content
+                return updatePage();
+            })
+            .catch(error => {
+                console.error('Error changing chapter:', error);
             });
     }
     
@@ -156,56 +287,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Setup chapter selector if present
-    function setupChapterSelector() {
-        // Determine max chapter count (you can adjust this as needed)
-        const maxChapters = 10; // Example: 10 chapters in your book
-        
-        // Clear existing options
-        chapterSelector.innerHTML = '';
-        
-        // Add options for each chapter
-        for (let i = 1; i <= maxChapters; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = `Chapter ${i}`;
-            chapterSelector.appendChild(option);
-        }
-        
-        // Set the current chapter
-        chapterSelector.value = currentChapter;
-        
-        // Add change event listener
-        chapterSelector.addEventListener('change', function() {
-            currentChapter = parseInt(this.value, 10);
-            localStorage.setItem('currentChapter', currentChapter);
-            
-            // Check if current page is still available
-            isPageAvailable(currentPageId).then(available => {
-                if (available) {
-                    // Update current page to show appropriate version
-                    updatePage();
-                } else {
-                    // Current page no longer available, find a new one
-                    findFirstAvailablePage().then(pageId => {
-                        if (pageId) {
-                            // Reset history and show new page
-                            currentPageId = pageId;
-                            pageHistory = [currentPageId];
-                            updatePage();
-                        } else {
-                            // No available pages
-                            pageContent.innerHTML = '<p>No content available for your current chapter.</p>';
-                        }
-                    });
-                }
-            });
-        });
-    }
-    
     // Toggle open/close book
     toggleButton.addEventListener('click', function() {
-        console.log('Toggling book');
         isOpen = !isOpen;
         
         // Toggle a class instead of directly setting transform
@@ -305,12 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up global page link click handlers
     function setupPageLinks() {
-        console.log('Setting up page links');
         // Using event delegation for page links
         document.addEventListener('click', function(e) {
             // Check if the clicked element is a page link
             if (e.target.classList.contains('page-link')) {
-                console.log('Page link clicked:', e.target);
                 e.preventDefault();
                 
                 // Get target page ID (prefer data-page-id, fall back to data-index for compatibility)

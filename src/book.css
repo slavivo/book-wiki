@@ -315,3 +315,78 @@ body {
         height: 2.5rem;
     }
 }
+/* Chapter Selector Styling */
+.chapter-selector-container {
+    position: absolute;
+    top: 10px; /* Position from top of book-container */
+    left: 20px; /* Position from left of book-container */
+    z-index: 10;
+    width: 150px; /* Smaller width */
+    text-align: left;
+    pointer-events: auto;
+}
+
+.chapter-selector {
+    background-color: rgba(30, 18, 12, 0.8);
+    border: 1px solid var(--accent);
+    color: var(--accent-light);
+    padding: 0.4rem 0.7rem;
+    border-radius: 4px;
+    font-family: 'Georgia', serif;
+    font-size: 0.85rem; /* Smaller font size */
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="6"><path d="M0,0 L12,0 L6,6 Z" fill="%23c29b6f"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 10px 5px;
+    transition: all 0.3s ease;
+}
+
+.chapter-selector:hover {
+    background-color: rgba(62, 39, 25, 0.9);
+    box-shadow: 0 0 10px rgba(139, 90, 43, 0.5);
+}
+
+.chapter-selector:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(248, 215, 117, 0.4);
+    border-color: var(--glow);
+}
+
+.chapter-selector option {
+    background-color: #2a1a12;
+    color: var(--accent-light);
+    font-family: 'Georgia', serif;
+}
+
+/* For the open book state - hide the selector */
+.book.open ~ .chapter-selector-container {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* Show selector when book is closed */
+.book.closed ~ .chapter-selector-container {
+    opacity: 1;
+    pointer-events: auto;
+    transition: opacity 0.5s ease;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .chapter-selector-container {
+        width: 120px;
+        top: 15px;
+        left: 15px;
+    }
+    
+    .chapter-selector {
+        font-size: 0.8rem;
+    }
+}
