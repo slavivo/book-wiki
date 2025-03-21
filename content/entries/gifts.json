@@ -1,0 +1,21 @@
+{
+  "title": "gifts",
+  "versions": [
+    {
+      "id": "v1",
+      "chapterRange": [
+        1,
+        999
+      ],
+      "content": "<p>Enter content here...asd</p>"
+    },
+    {
+      "id": "v1.1",
+      "chapterRange": [
+        3,
+        999
+      ],
+      "content": "<p>Enter content here...</p>"
+    }
+  ]
+}

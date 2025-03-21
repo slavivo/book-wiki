@@ -1,20 +1,17 @@
 {
   "entries": [
     {
-      "id": "introduction",
+      "title": "introduction",
       "category": "core"
     },
     {
-      "id": "section-1",
-      "category": "core"
+      "title": "dev-notes",
+      "category": "development",
+      "published": false
     },
     {
-      "id": "section-2",
-      "category": "core"
-    },
-    {
-      "id": "magic-system",
-      "category": "lore"
+      "title": "gifts",
+      "published": true
     }
   ]
 }

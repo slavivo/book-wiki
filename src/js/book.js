@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const book = document.getElementById('magic-book');
     const toggleButton = document.getElementById('toggle-book');
     const pageContent = document.getElementById('page-content');
-    const currentPageTitle = document.getElementById('current-page-title');
+    const pageTitle = document.getElementById('page-title');
     const backButton = document.getElementById('back-button');
     
     // Initially hide the back button
@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // State variables
     let isOpen = false;
-    let currentPageId = null;
-    let pageHistory = []; // Array to store visited page IDs
+    let currentPageTitle = null;
+    let pageHistory = []; // Array to store visited page titles
     let currentChapter = 800; // Default to chapter 1
     let wikiMetadata = null;
     let entryCache = {}; // Cache for loaded entries
@@ -47,12 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Find first available page
                 return findFirstAvailablePage();
             })
-            .then(firstPageId => {
+            .then(firstPageTitle => {
                 // Set initial page
-                currentPageId = firstPageId;
+                currentPageTitle = firstPageTitle;
                 
                 // Add first page to history and display it
-                pageHistory.push(currentPageId);
+                pageHistory.push(currentPageTitle);
                 return updatePage();
             })
             .then(() => {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (entry.published === false) return;
 
             // For each entry, create a promise for fetching and push it to our array
-            const fetchPromise = fetchEntry(entry.id)
+            const fetchPromise = fetchEntry(entry.title)
                 .then(entryData => {
                     entryData.versions.forEach(version => {
                         // Add start of chapter range
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 })
                 .catch(error => {
-                    console.error(`Error loading entry ${entry.id}:`, error);
+                    console.error(`Error loading entry ${entry.title}:`, error);
                 });
 
             fetchPromises.push(fetchPromise);
@@ -170,7 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function changeChapter(chapterNumber) {
         // Update current chapter
         currentChapter = chapterNumber;
-        console.log('Changing chapter to:', currentChapter);
 
         // Save to localStorage
         localStorage.setItem('currentChapter', currentChapter);
@@ -180,12 +179,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Find first available page for new chapter
         findFirstAvailablePage()
-            .then(firstPageId => {
+            .then(firstPageTitle => {
                 // Set current page to first available page
-                currentPageId = firstPageId;
+                currentPageTitle = firstPageTitle;
 
                 // Add to history
-                pageHistory.push(currentPageId);
+                pageHistory.push(currentPageTitle);
 
                 // Update page content
                 return updatePage();
@@ -207,28 +206,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Fetch an individual entry file
-    async function fetchEntry(entryId) {
+    async function fetchEntry(entryTitle) {
         // Check cache first
-        if (entryCache[entryId]) {
-            return entryCache[entryId];
+        if (entryCache[entryTitle]) {
+            return entryCache[entryTitle];
         }
         
         try {
-            const response = await fetch(`./content/entries/${entryId}.json`);
+            const response = await fetch(`./content/entries/${entryTitle}.json`);
             const data = await response.json();
-            
             // Cache the entry
-            entryCache[entryId] = data;
+            entryCache[entryTitle] = data;
             return data;
         } catch (error) {
-            throw new Error(`Failed to load entry: ${entryId}`);
+            throw new Error(`Failed to load entry: ${entryTitle}`);
         }
     }
     
     // Find the first available page for current chapter
     async function findFirstAvailablePage() {
         // Default to introduction if available
-        const introEntry = wikiMetadata.entries.find(entry => entry.id === 'introduction');
+        const introEntry = wikiMetadata.entries.find(entry => entry.title === 'introduction');
         if (introEntry && introEntry.published !== false) {
             if (await isPageAvailable('introduction')) {
                 return 'introduction';
@@ -239,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const entry of wikiMetadata.entries) {
             if (entry.published === false) continue;
             
-            if (await isPageAvailable(entry.id)) {
-                return entry.id;
+            if (await isPageAvailable(entry.title)) {
+                return entry.title;
             }
         }
         
@@ -248,16 +246,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Check if a page is available for current chapter
-    async function isPageAvailable(pageId) {
+    async function isPageAvailable(pageTitle) {
         // Check if page exists in metadata
-        const metadataEntry = wikiMetadata.entries.find(entry => entry.id === pageId);
+        const metadataEntry = wikiMetadata.entries.find(entry => entry.title === pageTitle);
         if (!metadataEntry || metadataEntry.published === false) {
             return false;
         }
         
         // Load the entry data
         try {
-            const entry = await fetchEntry(pageId);
+            const entry = await fetchEntry(pageTitle);
             
             // Check if any version of this page is available at current chapter
             return entry.versions.some(version => 
@@ -271,10 +269,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Get the appropriate version of a page for current chapter
-    async function getPageVersionForChapter(pageId) {
+    async function getPageVersionForChapter(pageTitle) {
         try {
             // Load the entry data
-            const entry = await fetchEntry(pageId);
+            const entry = await fetchEntry(pageTitle);
             
             // Find the appropriate version for the current chapter
             return entry.versions.find(version => 
@@ -320,14 +318,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100); // Small delay to let animation start
     });
     
-    // Update page content based on current pageId
+    // Update page content based on current pageTitle
     async function updatePage() {
         try {
             // Show loading indicator
             pageContent.innerHTML = '<p>Loading...</p>';
             
             // Get the appropriate version for current chapter
-            const pageVersion = await getPageVersionForChapter(currentPageId);
+            const pageVersion = await getPageVersionForChapter(currentPageTitle);
             
             if (!pageVersion) {
                 pageContent.innerHTML = '<p>Page not available for your current chapter.</p>';
@@ -335,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Update the page content
-            currentPageTitle.textContent = pageVersion.title;
+            pageTitle.textContent = currentPageTitle;
             pageContent.innerHTML = pageVersion.content;
             
             // Update back button visibility
@@ -365,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Remove current page from history
                 pageHistory.pop();
                 // Set current page to previous page in history
-                currentPageId = pageHistory[pageHistory.length - 1];
+                currentPageTitle = pageHistory[pageHistory.length - 1];
                 updatePage();
             }
         });
@@ -375,12 +373,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupPageLinksInContent() {
         const pageLinks = document.querySelectorAll('.page-link');
         pageLinks.forEach(link => {
-            // Convert from data-index to data-page-id if needed
-            if (link.hasAttribute('data-index') && !link.hasAttribute('data-page-id')) {
+            // Convert from data-index to data-page-title if needed
+            if (link.hasAttribute('data-index') && !link.hasAttribute('data-page-title')) {
                 // For backward compatibility with old links format
                 const indexValue = link.getAttribute('data-index');
                 if (wikiMetadata.entries[indexValue]) {
-                    link.setAttribute('data-page-id', wikiMetadata.entries[indexValue].id);
+                    link.setAttribute('data-page-title', wikiMetadata.entries[indexValue].title);
                 }
             }
         });
@@ -394,29 +392,29 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target.classList.contains('page-link')) {
                 e.preventDefault();
                 
-                // Get target page ID (prefer data-page-id, fall back to data-index for compatibility)
-                let targetPageId;
+                // Get target page title (prefer data-page-title, fall back to data-index for compatibility)
+                let targetPageTitle;
                 
-                if (e.target.hasAttribute('data-page-id')) {
-                    targetPageId = e.target.getAttribute('data-page-id');
+                if (e.target.hasAttribute('data-page-title')) {
+                    targetPageTitle = e.target.getAttribute('data-page-title');
                 } else if (e.target.hasAttribute('data-index')) {
                     // For backward compatibility
                     const targetIndex = parseInt(e.target.getAttribute('data-index'));
                     if (wikiMetadata.entries[targetIndex]) {
-                        targetPageId = wikiMetadata.entries[targetIndex].id;
+                        targetPageTitle = wikiMetadata.entries[targetIndex].title;
                     }
                 }
                 
-                if (targetPageId) {
+                if (targetPageTitle) {
                     // Check if the page is available for current chapter
-                    isPageAvailable(targetPageId).then(available => {
+                    isPageAvailable(targetPageTitle).then(available => {
                         if (available) {
                             // Store the new page in history
-                            currentPageId = targetPageId;
-                            pageHistory.push(currentPageId);
+                            currentPageTitle = targetPageTitle;
+                            pageHistory.push(currentPageTitle);
                             updatePage();
                         } else {
-                            console.log(`Page ${targetPageId} not available for chapter ${currentChapter}`);
+                            console.log(`Page ${targetPageTitle} not available for chapter ${currentChapter}`);
                         }
                     });
                 }

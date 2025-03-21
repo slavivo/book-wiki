@@ -1,13 +1,13 @@
 {
-  "id": "introduction",
+  "title": "introduction",
   "versions": [
     {
-      "title": "Introduction",
+      "id": "Introduction",
       "chapterRange": [
         1,
-        5
+        999
       ],
-      "content": "<p>I never intended to become a chronicler of magic <span class=\"page-link\" data-page-id=\"magic-system\">Magic System</span> . <span class=\"page-link\" data-page-id=\"section-1\">Section 1</span> My journey began as a simple scholar at the Academy, content with studying the theories of others. But fate has a way of pushing us down unexpected paths.</p><p>When I discovered the strange crystal in the mountains of Eldrath, I could not have known how it would change everything. This book shall serve as my record of all I learn about the magical systems of our world, the creatures that inhabit it, and the ancient powers that still linger in forgotten places.</p><p>As I uncover more secrets, I will add to these pages. Perhaps someday, another seeker will find this tome useful in their own quest for understanding.</p><p>I have organized this compendium into sections based on my discoveries. Navigate through the contents to explore what I have learned thus far.</p><p>~ <em>Lyra Moonshadow, Arcane Scholar</em></p>"
+      "content": "<p>This is property of Amber Volk.</p>\n<p>Here is my findings on the topic of <span class=\"page-link\" data-page-title=\"gifts\">gifts</span>.asd</p>\n<p><span class=\"page-link\" data-page-title=\"gifts\">gifts</span></p>"
     }
   ]
 }
