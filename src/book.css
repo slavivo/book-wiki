@@ -13,6 +13,17 @@
     padding: 0;
 }
 
+.character {
+    display: inline;
+    opacity: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+    line-height: inherit;
+    text-align: inherit;
+}
+
 body {
     background-color: #1a1410;
     color: var(--ink);

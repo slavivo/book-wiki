@@ -1,16 +1,11 @@
 {
   "entries": [
     {
-      "title": "introduction",
+      "title": "Introduction",
       "category": "core"
     },
     {
-      "title": "dev-notes",
-      "category": "development",
-      "published": false
-    },
-    {
-      "title": "gifts",
+      "title": "Gifts",
       "published": true
     }
   ]

@@ -17,6 +17,122 @@ document.addEventListener('DOMContentLoaded', function() {
     let wikiMetadata = null;
     let entryCache = {}; // Cache for loaded entries
     let availableChapters = []; // Array to store available chapters
+
+// Simple but effective approach to text reveal with working links
+function applyTextRevealEffect(element) {
+    // Skip if the content is just a loading message
+    if (element.innerHTML === '<p>Loading...</p>' || 
+        element.innerHTML === '<p>Page not available for your current chapter.</p>' ||
+        element.innerHTML === '<p>Error loading page content.</p>') {
+        return;
+    }
+    
+    // 1. First, prepare all links by adding a special class and making them invisible
+    const links = element.querySelectorAll('.page-link');
+    links.forEach(link => {
+        link.classList.add('reveal-item');
+        link.style.opacity = '0';
+    });
+    
+    // 2. Process text nodes, excluding those inside links
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const textNodeInfo = [];
+    let node;
+    
+    // Collect information about text nodes we want to animate
+    while (node = walker.nextNode()) {
+        // Skip empty nodes
+        if (node.nodeValue.trim() === '') continue;
+        
+        // Skip nodes inside page-links, style, or script tags
+        let parent = node.parentNode;
+        let skip = false;
+        while (parent && parent !== element) {
+            if (parent.tagName === 'STYLE' || 
+                parent.tagName === 'SCRIPT' || 
+                parent.classList.contains('page-link')) {
+                skip = true;
+                break;
+            }
+            parent = parent.parentNode;
+        }
+        
+        if (!skip) {
+            // Store the node and its text for processing
+            textNodeInfo.push({
+                node: node,
+                text: node.nodeValue
+            });
+        }
+    }
+    
+    // 3. Replace each text node with character spans
+    textNodeInfo.forEach(info => {
+        const fragment = document.createDocumentFragment();
+        
+        // Create a span for each character
+        info.text.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.classList.add('character', 'reveal-item');
+            span.style.opacity = '0';
+            span.textContent = char;
+            fragment.appendChild(span);
+        });
+        
+        // Replace the original text node
+        info.node.parentNode.replaceChild(fragment, info.node);
+    });
+    
+    // 4. Animate all reveal items (links and character spans)
+    animateRevealItems(element);
+}
+
+// Animate all items with the reveal-item class
+function animateRevealItems(element) {
+    const items = element.querySelectorAll('.reveal-item');
+    if (items.length === 0) return;
+    
+    // Temporarily disable link clicks during animation
+    const links = element.querySelectorAll('.page-link');
+    links.forEach(link => {
+        link.style.pointerEvents = 'none';
+    });
+    
+    // Create random reveal order
+    const indices = Array.from({ length: items.length }, (_, i) => i);
+    shuffleArray(indices);
+    
+    // Calculate timing
+    const totalTime = Math.min(3500, Math.max(1500, items.length * 8));
+    const timePerItem = totalTime / items.length;
+    
+    // Reveal items in random order
+    indices.forEach((index, i) => {
+        setTimeout(() => {
+            const item = items[index];
+            item.style.transition = 'opacity 0.4s ease-in';
+            item.style.opacity = '1';
+            
+            // Re-enable links at the end of animation
+            if (i === items.length - 1) {
+                setTimeout(() => {
+                    links.forEach(link => {
+                        link.style.pointerEvents = 'auto';
+                    });
+                }, 400);
+            }
+        }, i * timePerItem);
+    });
+}
+
+// Shuffle array function (same as before)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
     
     // Initialize the book
     function initBook() {
@@ -226,10 +342,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Find the first available page for current chapter
     async function findFirstAvailablePage() {
         // Default to introduction if available
-        const introEntry = wikiMetadata.entries.find(entry => entry.title === 'introduction');
+        const introEntry = wikiMetadata.entries.find(entry => entry.title === 'Introduction');
         if (introEntry && introEntry.published !== false) {
-            if (await isPageAvailable('introduction')) {
-                return 'introduction';
+            if (await isPageAvailable('Introduction')) {
+                return 'Introduction';
             }
         }
         
@@ -317,28 +433,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 100); // Small delay to let animation start
     });
-    
+
     // Update page content based on current pageTitle
     async function updatePage() {
         try {
             // Show loading indicator
             pageContent.innerHTML = '<p>Loading...</p>';
-            
+
             // Get the appropriate version for current chapter
             const pageVersion = await getPageVersionForChapter(currentPageTitle);
-            
+
             if (!pageVersion) {
                 pageContent.innerHTML = '<p>Page not available for your current chapter.</p>';
                 return;
             }
-            
+
             // Update the page content
             pageTitle.textContent = currentPageTitle;
             pageContent.innerHTML = pageVersion.content;
-            
+
+            // Apply the text reveal effect
+            applyTextRevealEffect(pageContent);
+
             // Update back button visibility
             updateBackButtonVisibility();
-            
+
             // Setup page links for the new content
             setupPageLinksInContent();
         } catch (error) {
